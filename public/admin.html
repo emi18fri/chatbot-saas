@@ -94,6 +94,20 @@ h2{font-size:1.1rem;margin-bottom:1rem;color:#f0c040}
         <label>Logga URL (valfritt)</label>
         <input id="f-logo" placeholder="https://foretagsnamn.se/logga.png"/>
       </div>
+      <div class="form-grid" style="margin-bottom:1rem">
+        <div class="form-group">
+          <label>Logga bakgrundsfärg</label>
+          <input id="f-logo-bg" type="color" value="#000000"/>
+        </div>
+        <div class="form-group">
+          <label>Logga form</label>
+          <select id="f-logo-shape">
+            <option value="50%">Rund</option>
+            <option value="8px">Rundad fyrkant</option>
+            <option value="0">Fyrkantig</option>
+          </select>
+        </div>
+      </div>
       <div class="form-group" style="margin-bottom:1.5rem">
         <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
         <textarea id="f-info" placeholder="Öppettider: Mån-Fre 08:00-17:00&#10;Telefon: 070-000 00 00&#10;Certifierad på Reco.se&#10;Priser: ..."></textarea>
@@ -154,6 +168,8 @@ async function sparaKund(id) {
 
   try {
     var logoUrl = document.getElementById("edit-logo-"+id).value;
+    var logoBg = document.getElementById("edit-logo-bg-"+id).value;
+    var logoShape = document.getElementById("edit-logo-shape-"+id).value;
     await supabaseReq("PATCH", "customers?id=eq."+id, {
       name: namn,
       website_url: url,
@@ -161,7 +177,9 @@ async function sparaKund(id) {
       contact_email: email,
       greeting: greeting,
       extra_info: extraInfo,
-      logo_url: logoUrl
+      logo_url: logoUrl,
+      logo_bg: logoBg,
+      logo_shape: logoShape
     });
     document.getElementById("save-msg-"+id).style.display = "block";
     setTimeout(() => {
@@ -225,6 +243,20 @@ async function laddaKunder() {
             <label>Logga URL (valfritt)</label>
             <input id="edit-logo-${k.id}" value="${k.logo_url||''}"/>
           </div>
+          <div class="form-grid" style="margin-bottom:1rem">
+            <div class="form-group">
+              <label>Logga bakgrundsfärg</label>
+              <input id="edit-logo-bg-${k.id}" type="color" value="${k.logo_bg||'#000000'}"/>
+            </div>
+            <div class="form-group">
+              <label>Logga form</label>
+              <select id="edit-logo-shape-${k.id}">
+                <option value="50%" ${k.logo_shape==='50%'?'selected':''}>Rund</option>
+                <option value="8px" ${k.logo_shape==='8px'?'selected':''}>Rundad fyrkant</option>
+                <option value="0" ${k.logo_shape==='0'?'selected':''}>Fyrkantig</option>
+              </select>
+            </div>
+          </div>
           <div class="form-group" style="margin-bottom:1rem">
             <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
             <textarea id="edit-info-${k.id}">${k.extra_info||''}</textarea>
@@ -251,6 +283,8 @@ async function laggTillKund() {
 
   try {
     const logoUrl = document.getElementById("f-logo").value.trim();
+    const logoBg = document.getElementById("f-logo-bg").value;
+    const logoShape = document.getElementById("f-logo-shape").value;
     await supabaseReq("POST", "customers", {
       name,
       website_url: url,
@@ -259,6 +293,8 @@ async function laggTillKund() {
       greeting: greeting || "Hej! Välkommen till " + name + ". Hur kan vi hjälpa dig?",
       extra_info: extraInfo,
       logo_url: logoUrl,
+      logo_bg: logoBg,
+      logo_shape: logoShape,
       active: true
     });
     document.getElementById("success-msg").style.display = "block";
