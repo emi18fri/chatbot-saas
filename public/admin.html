@@ -133,11 +133,13 @@ async function laddaKunder() {
     }
     lista.innerHTML = kunder.map(k => `
       <div class="customer-card">
-        <div class="customer-color" style="background:${k.primary_color}"></div>
+        <div class="customer-color" style="background:${k.primary_color || '#f0c040'}"></div>
         <div class="customer-info">
           <div class="customer-name">${k.name} <span class="badge ${k.active ? 'badge-active' : 'badge-inactive'}">${k.active ? 'Aktiv' : 'Inaktiv'}</span></div>
           <div class="customer-url">${k.website_url || '-'}</div>
-          <div class="embed-code">${getEmbedCode(k)}</div>
+          <div style="margin-top:0.5rem;font-size:0.75rem;color:#888;">Inbäddningskod:</div>
+          <div class="embed-code">&lt;script src="https://chatbot-saas.vercel.app/chat.js?id=${k.id}"&gt;&lt;/script&gt;</div>
+          <button onclick="kopiera('${k.id}')" style="margin-top:0.5rem;background:#f0c040;border:none;border-radius:4px;padding:0.3rem 0.8rem;cursor:pointer;font-size:0.8rem;font-weight:700;">Kopiera kod</button>
         </div>
         <div class="customer-actions">
           <button class="btn btn-red" onclick="raderaKund('${k.id}')">Radera</button>
@@ -173,6 +175,12 @@ async function laggTillKund() {
   } catch(e) {
     alert("Fel: " + e.message);
   }
+}
+
+function kopiera(id) {
+  var kod = '<script src="https://chatbot-saas.vercel.app/chat.js?id=' + id + '"><\/script>';
+  navigator.clipboard.writeText(kod);
+  alert("Kopierad!");
 }
 
 async function raderaKund(id) {
