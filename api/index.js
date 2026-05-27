@@ -190,7 +190,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    const system = `Du är en hjälpsam assistent för ${customer.name}. Svara alltid kort och professionellt utan markdown-formatering. Svara på samma språk som användaren skriver på.${websiteInfo ? "\n\nInfo från hemsidan:\n" + websiteInfo : ""}`;
+    const system = `Du är en hjälpsam assistent för ${customer.name}. Svara alltid kort och professionellt utan markdown-formatering. Svara på samma språk som användaren skriver på.${customer.extra_info ? "\n\nExtra information om företaget:\n" + customer.extra_info : ""}${websiteInfo ? "\n\nInfo från hemsidan:\n" + websiteInfo : ""}`;
 
     const body = JSON.stringify({
       model: "claude-haiku-4-5-20251001",
