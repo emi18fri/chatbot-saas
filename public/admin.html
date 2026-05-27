@@ -148,7 +148,7 @@ async function supabaseReq(method, path, body) {
 }
 
 function kopiera(id) {
-  var kod = '<script src="https://chatbot-saas.vercel.app/chat.js?id=' + id + '"><\/script>';
+  var kod = '<script src="https://chatbot-saas.vercel.app/api/embed?id=' + id + '"><\/script>';
   navigator.clipboard.writeText(kod);
   alert("Inbäddningskod kopierad!");
 }
@@ -192,7 +192,7 @@ async function sparaKund(id) {
 
 async function laddaKunder() {
   try {
-    const kunder = await supabaseReq("GET", "customers?select=id,name,website_url,primary_color,contact_email,greeting,extra_info,logo_url,logo_bg,logo_shape,active,created_at&order=created_at.desc");
+    const kunder = await supabaseReq("GET", "customers?select=*&order=created_at.desc");
     const lista = document.getElementById("kund-lista");
     if(!kunder || kunder.length === 0) {
       lista.innerHTML = '<div style="color:#888;padding:2rem;text-align:center">Inga kunder än. Lägg till din första kund!</div>';
@@ -213,7 +213,7 @@ async function laddaKunder() {
           </div>
         </div>
 
-        <div class="embed-code">&lt;script src="https://chatbot-saas.vercel.app/chat.js?id=${k.id}"&gt;&lt;/script&gt;</div>
+        <div class="embed-code">&lt;script src="https://chatbot-saas.vercel.app/api/embed?id=${k.id}"&gt;&lt;/script&gt;</div>
 
         <div class="edit-panel" id="edit-${k.id}">
           <h2 style="margin-top:1rem">Redigera ${k.name}</h2>
