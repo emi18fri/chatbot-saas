@@ -10,13 +10,15 @@ function httpsGet(url, headers) {
       hostname: u.hostname,
       path: u.pathname + u.search,
       method: "GET",
-      headers: headers || {}
+      headers: headers || {},
+      timeout: 5000
     }, (res) => {
       let data = "";
       res.on("data", chunk => data += chunk);
       res.on("end", () => resolve(data));
     });
     req.on("error", reject);
+    req.on("timeout", () => { req.destroy(); reject(new Error("Timeout")); });
     req.end();
   });
 }
