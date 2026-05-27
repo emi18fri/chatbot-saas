@@ -90,6 +90,10 @@ h2{font-size:1.1rem;margin-bottom:1rem;color:#f0c040}
         <label>Välkomstmeddelande</label>
         <input id="f-greeting" placeholder="Hej! Välkommen till Företaget. Hur kan vi hjälpa dig?"/>
       </div>
+      <div class="form-group" style="margin-bottom:1rem">
+        <label>Logga URL (valfritt)</label>
+        <input id="f-logo" placeholder="https://foretagsnamn.se/logga.png"/>
+      </div>
       <div class="form-group" style="margin-bottom:1.5rem">
         <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
         <textarea id="f-info" placeholder="Öppettider: Mån-Fre 08:00-17:00&#10;Telefon: 070-000 00 00&#10;Certifierad på Reco.se&#10;Priser: ..."></textarea>
@@ -149,13 +153,15 @@ async function sparaKund(id) {
   var extraInfo = document.getElementById("edit-info-"+id).value;
 
   try {
+    var logoUrl = document.getElementById("edit-logo-"+id).value;
     await supabaseReq("PATCH", "customers?id=eq."+id, {
       name: namn,
       website_url: url,
       primary_color: color,
       contact_email: email,
       greeting: greeting,
-      extra_info: extraInfo
+      extra_info: extraInfo,
+      logo_url: logoUrl
     });
     document.getElementById("save-msg-"+id).style.display = "block";
     setTimeout(() => {
@@ -216,6 +222,10 @@ async function laddaKunder() {
             <input id="edit-greeting-${k.id}" value="${k.greeting||''}"/>
           </div>
           <div class="form-group" style="margin-bottom:1rem">
+            <label>Logga URL (valfritt)</label>
+            <input id="edit-logo-${k.id}" value="${k.logo_url||''}"/>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem">
             <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
             <textarea id="edit-info-${k.id}">${k.extra_info||''}</textarea>
           </div>
@@ -240,6 +250,7 @@ async function laggTillKund() {
   if(!name) { alert("Fyll i företagsnamn!"); return; }
 
   try {
+    const logoUrl = document.getElementById("f-logo").value.trim();
     await supabaseReq("POST", "customers", {
       name,
       website_url: url,
@@ -247,6 +258,7 @@ async function laggTillKund() {
       contact_email: email,
       greeting: greeting || "Hej! Välkommen till " + name + ". Hur kan vi hjälpa dig?",
       extra_info: extraInfo,
+      logo_url: logoUrl,
       active: true
     });
     document.getElementById("success-msg").style.display = "block";
