@@ -66,7 +66,7 @@ module.exports = async (req, res) => {
   }
 
   // Serve embed script
-  if (path === "/chat.js") {
+  if (path === "/chat.js" || path === "/api/embed") {
     const logoHtml = customer.logo_url
       ? '<img src="' + customer.logo_url + '" style="width:32px;height:32px;object-fit:contain;border-radius:' + (customer.logo_shape || '50%') + ';background:' + (customer.logo_bg || '#000') + ';padding:2px;">'
       : customer.name.slice(0,2).toUpperCase();
