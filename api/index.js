@@ -58,9 +58,16 @@ module.exports = async (req, res) => {
       "apikey": SUPABASE_KEY,
       "Authorization": "Bearer " + SUPABASE_KEY
     });
-    const customers = JSON.parse(data);
+    let customers;
+    try {
+      customers = JSON.parse(data);
+    } catch(parseErr) {
+      return res.status(500).json({ error: "Parse error: " + data.slice(0, 200) });
+    }
+    if (!Array.isArray(customers) || customers.length === 0) {
+      return res.status(404).json({ error: "Customer not found", raw: data.slice(0, 200) });
+    }
     customer = customers[0];
-    if (!customer) return res.status(404).json({ error: "Customer not found" });
   } catch(e) {
     return res.status(500).json({ error: "Database error: " + e.message });
   }
