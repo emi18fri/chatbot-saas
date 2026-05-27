@@ -11,17 +11,22 @@ nav{background:#1a1a1a;padding:1rem 2rem;display:flex;justify-content:space-betw
 .logo{color:#f0c040;font-weight:800;font-size:1.2rem}
 .content{max-width:1100px;margin:0 auto;padding:2rem}
 h1{font-size:1.5rem;margin-bottom:2rem;color:#f0c040}
+h2{font-size:1.1rem;margin-bottom:1rem;color:#f0c040}
 .btn{background:#f0c040;color:#000;border:none;padding:0.7rem 1.5rem;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.9rem}
 .btn:hover{background:#fff}
 .btn-red{background:#e55;color:#fff}
 .btn-red:hover{background:#c33}
+.btn-gray{background:#333;color:#fff}
+.btn-gray:hover{background:#444}
 .card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
 .form-group{display:flex;flex-direction:column;gap:0.4rem}
 .form-group label{font-size:0.78rem;color:#888;text-transform:uppercase;letter-spacing:0.05em}
-.form-group input,.form-group textarea{background:#111;border:1px solid #333;border-radius:6px;padding:0.65rem;color:#f0f0f0;font-size:0.9rem;outline:none}
+.form-group input,.form-group textarea,.form-group select{background:#111;border:1px solid #333;border-radius:6px;padding:0.65rem;color:#f0f0f0;font-size:0.9rem;outline:none;font-family:sans-serif}
 .form-group input:focus,.form-group textarea:focus{border-color:#f0c040}
-.customer-card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.2rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:1rem}
+.form-group textarea{min-height:120px;resize:vertical}
+.customer-card{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:1.2rem;margin-bottom:0.75rem}
+.customer-top{display:flex;align-items:center;gap:1rem}
 .customer-color{width:40px;height:40px;border-radius:50%;flex-shrink:0}
 .customer-info{flex:1}
 .customer-name{font-weight:700;font-size:1rem}
@@ -29,17 +34,16 @@ h1{font-size:1.5rem;margin-bottom:2rem;color:#f0c040}
 .customer-actions{display:flex;gap:0.5rem}
 .badge{display:inline-block;padding:0.2rem 0.6rem;border-radius:100px;font-size:0.72rem;font-weight:600}
 .badge-active{background:rgba(34,197,94,0.15);color:#22c55e}
-.badge-inactive{background:rgba(239,68,68,0.15);color:#ef4444}
 .embed-code{background:#111;border:1px solid #333;border-radius:8px;padding:1rem;font-family:monospace;font-size:0.78rem;color:#7dd3fc;white-space:pre-wrap;margin-top:0.75rem}
 .tabs{display:flex;gap:0;margin-bottom:2rem;border-bottom:1px solid #333}
 .tab{padding:0.8rem 1.5rem;cursor:pointer;color:#888;border-bottom:2px solid transparent;font-size:0.9rem}
 .tab.active{color:#f0c040;border-bottom-color:#f0c040}
 .section{display:none}
 .section.active{display:block}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;padding:0.75rem;color:#888;font-size:0.78rem;text-transform:uppercase;border-bottom:1px solid #333}
-td{padding:0.75rem;border-bottom:1px solid #222;font-size:0.88rem}
 #loading{text-align:center;padding:3rem;color:#888}
+.edit-panel{display:none;margin-top:1rem;border-top:1px solid #333;padding-top:1rem}
+.edit-panel.open{display:block}
+.success{color:#22c55e;font-size:0.9rem;margin-top:0.5rem}
 </style>
 </head>
 <body>
@@ -50,8 +54,8 @@ td{padding:0.75rem;border-bottom:1px solid #222;font-size:0.88rem}
 
 <div class="content">
   <div class="tabs">
-    <div class="tab active" onclick="showTab('kunder')">Kunder</div>
-    <div class="tab" onclick="showTab('lagg-till')">Lägg till kund</div>
+    <div class="tab active" onclick="showTab('kunder', this)">Kunder</div>
+    <div class="tab" onclick="showTab('lagg-till', this)">Lägg till kund</div>
   </div>
 
   <!-- KUNDER -->
@@ -74,8 +78,8 @@ td{padding:0.75rem;border-bottom:1px solid #222;font-size:0.88rem}
           <input id="f-url" placeholder="https://www.foretagsnamn.se"/>
         </div>
         <div class="form-group">
-          <label>Temafärg (hex)</label>
-          <input id="f-color" placeholder="#f0c040" type="color" value="#f0c040"/>
+          <label>Temafärg</label>
+          <input id="f-color" type="color" value="#f0c040"/>
         </div>
         <div class="form-group">
           <label>Kontakt email</label>
@@ -86,8 +90,12 @@ td{padding:0.75rem;border-bottom:1px solid #222;font-size:0.88rem}
         <label>Välkomstmeddelande</label>
         <input id="f-greeting" placeholder="Hej! Välkommen till Företaget. Hur kan vi hjälpa dig?"/>
       </div>
+      <div class="form-group" style="margin-bottom:1.5rem">
+        <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
+        <textarea id="f-info" placeholder="Öppettider: Mån-Fre 08:00-17:00&#10;Telefon: 070-000 00 00&#10;Certifierad på Reco.se&#10;Priser: ..."></textarea>
+      </div>
       <button class="btn" onclick="laggTillKund()">Lägg till kund</button>
-      <div id="success-msg" style="display:none;margin-top:1rem;color:#22c55e;font-size:0.9rem">✓ Kunden har lagts till!</div>
+      <div id="success-msg" class="success" style="display:none">✓ Kunden har lagts till!</div>
     </div>
   </div>
 </div>
@@ -96,36 +104,71 @@ td{padding:0.75rem;border-bottom:1px solid #222;font-size:0.88rem}
 const SUPABASE_URL = "https://lqiyxkgizgnxpoqovqam.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxaXl4a2dpemdueHBvcW92cWFtIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTgwNTYzNSwiZXhwIjoyMDk1MzgxNjM1fQ.2kFYwKFVX8YX7ZfkNoiy5xp1c00PZEDaZQjZjUsPKHA";
 
-function showTab(tab) {
+function showTab(tab, el) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-  event.target.classList.add("active");
+  el.classList.add("active");
   document.getElementById("tab-"+tab).classList.add("active");
   if(tab === "kunder") laddaKunder();
 }
 
-async function supabase(method, path, body) {
+async function supabaseReq(method, path, body) {
   const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
     method,
     headers: {
       "apikey": SUPABASE_KEY,
       "Authorization": "Bearer " + SUPABASE_KEY,
       "Content-Type": "application/json",
-      "Prefer": method === "POST" ? "return=representation" : ""
+      "Prefer": method === "POST" ? "return=representation" : method === "PATCH" ? "return=representation" : ""
     },
     body: body ? JSON.stringify(body) : undefined
   });
   if(!res.ok) throw new Error(await res.text());
-  return method === "DELETE" ? null : res.json();
+  if(method === "DELETE") return null;
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
 }
 
-function getEmbedCode(customer) {
-  return `<script src="https://chatbot-saas.vercel.app/chat.js?id=${customer.id}"><\/script>`;
+function kopiera(id) {
+  var kod = '<script src="https://chatbot-saas.vercel.app/chat.js?id=' + id + '"><\/script>';
+  navigator.clipboard.writeText(kod);
+  alert("Inbäddningskod kopierad!");
+}
+
+function toggleEdit(id) {
+  var panel = document.getElementById("edit-"+id);
+  panel.classList.toggle("open");
+}
+
+async function sparaKund(id) {
+  var namn = document.getElementById("edit-name-"+id).value;
+  var url = document.getElementById("edit-url-"+id).value;
+  var color = document.getElementById("edit-color-"+id).value;
+  var email = document.getElementById("edit-email-"+id).value;
+  var greeting = document.getElementById("edit-greeting-"+id).value;
+  var extraInfo = document.getElementById("edit-info-"+id).value;
+
+  try {
+    await supabaseReq("PATCH", "customers?id=eq."+id, {
+      name: namn,
+      website_url: url,
+      primary_color: color,
+      contact_email: email,
+      greeting: greeting,
+      extra_info: extraInfo
+    });
+    document.getElementById("save-msg-"+id).style.display = "block";
+    setTimeout(() => {
+      document.getElementById("save-msg-"+id).style.display = "none";
+    }, 2000);
+  } catch(e) {
+    alert("Fel: " + e.message);
+  }
 }
 
 async function laddaKunder() {
   try {
-    const kunder = await supabase("GET", "customers?select=*&order=created_at.desc");
+    const kunder = await supabaseReq("GET", "customers?select=*&order=created_at.desc");
     const lista = document.getElementById("kund-lista");
     if(!kunder || kunder.length === 0) {
       lista.innerHTML = '<div style="color:#888;padding:2rem;text-align:center">Inga kunder än. Lägg till din första kund!</div>';
@@ -133,16 +176,51 @@ async function laddaKunder() {
     }
     lista.innerHTML = kunder.map(k => `
       <div class="customer-card">
-        <div class="customer-color" style="background:${k.primary_color || '#f0c040'}"></div>
-        <div class="customer-info">
-          <div class="customer-name">${k.name} <span class="badge ${k.active ? 'badge-active' : 'badge-inactive'}">${k.active ? 'Aktiv' : 'Inaktiv'}</span></div>
-          <div class="customer-url">${k.website_url || '-'}</div>
-          <div style="margin-top:0.5rem;font-size:0.75rem;color:#888;">Inbäddningskod:</div>
-          <div class="embed-code">&lt;script src="https://chatbot-saas.vercel.app/chat.js?id=${k.id}"&gt;&lt;/script&gt;</div>
-          <button onclick="kopiera('${k.id}')" style="margin-top:0.5rem;background:#f0c040;border:none;border-radius:4px;padding:0.3rem 0.8rem;cursor:pointer;font-size:0.8rem;font-weight:700;">Kopiera kod</button>
+        <div class="customer-top">
+          <div class="customer-color" style="background:${k.primary_color||'#f0c040'}"></div>
+          <div class="customer-info">
+            <div class="customer-name">${k.name} <span class="badge badge-active">Aktiv</span></div>
+            <div class="customer-url">${k.website_url||'-'}</div>
+          </div>
+          <div class="customer-actions">
+            <button class="btn btn-gray" onclick="toggleEdit('${k.id}')">✏️ Redigera</button>
+            <button class="btn" onclick="kopiera('${k.id}')">📋 Kopiera kod</button>
+            <button class="btn btn-red" onclick="raderaKund('${k.id}')">Radera</button>
+          </div>
         </div>
-        <div class="customer-actions">
-          <button class="btn btn-red" onclick="raderaKund('${k.id}')">Radera</button>
+
+        <div class="embed-code">&lt;script src="https://chatbot-saas.vercel.app/chat.js?id=${k.id}"&gt;&lt;/script&gt;</div>
+
+        <div class="edit-panel" id="edit-${k.id}">
+          <h2 style="margin-top:1rem">Redigera ${k.name}</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Företagsnamn</label>
+              <input id="edit-name-${k.id}" value="${k.name||''}"/>
+            </div>
+            <div class="form-group">
+              <label>Hemsida URL</label>
+              <input id="edit-url-${k.id}" value="${k.website_url||''}"/>
+            </div>
+            <div class="form-group">
+              <label>Temafärg</label>
+              <input id="edit-color-${k.id}" type="color" value="${k.primary_color||'#f0c040'}"/>
+            </div>
+            <div class="form-group">
+              <label>Kontakt email</label>
+              <input id="edit-email-${k.id}" value="${k.contact_email||''}"/>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label>Välkomstmeddelande</label>
+            <input id="edit-greeting-${k.id}" value="${k.greeting||''}"/>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label>Extra info till chatboten (öppettider, priser, certifieringar osv)</label>
+            <textarea id="edit-info-${k.id}">${k.extra_info||''}</textarea>
+          </div>
+          <button class="btn" onclick="sparaKund('${k.id}')">Spara ändringar</button>
+          <div id="save-msg-${k.id}" class="success" style="display:none">✓ Sparat!</div>
         </div>
       </div>
     `).join("");
@@ -157,14 +235,18 @@ async function laggTillKund() {
   const color = document.getElementById("f-color").value;
   const email = document.getElementById("f-email").value.trim();
   const greeting = document.getElementById("f-greeting").value.trim();
+  const extraInfo = document.getElementById("f-info").value.trim();
 
   if(!name) { alert("Fyll i företagsnamn!"); return; }
 
   try {
-    await supabase("POST", "customers", {
-      name, website_url: url, primary_color: color,
+    await supabaseReq("POST", "customers", {
+      name,
+      website_url: url,
+      primary_color: color,
       contact_email: email,
       greeting: greeting || "Hej! Välkommen till " + name + ". Hur kan vi hjälpa dig?",
+      extra_info: extraInfo,
       active: true
     });
     document.getElementById("success-msg").style.display = "block";
@@ -177,15 +259,9 @@ async function laggTillKund() {
   }
 }
 
-function kopiera(id) {
-  var kod = '<script src="https://chatbot-saas.vercel.app/chat.js?id=' + id + '"><\/script>';
-  navigator.clipboard.writeText(kod);
-  alert("Kopierad!");
-}
-
 async function raderaKund(id) {
   if(!confirm("Är du säker på att du vill radera denna kund?")) return;
-  await supabase("DELETE", "customers?id=eq."+id);
+  await supabaseReq("DELETE", "customers?id=eq."+id);
   laddaKunder();
 }
 
