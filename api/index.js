@@ -82,6 +82,8 @@ module.exports = async (req, res) => {
     color: ${JSON.stringify(customer.primary_color)},
     greeting: ${JSON.stringify(customer.greeting)},
     logo: ${JSON.stringify(customer.logo_url || '')},
+    logoBg: ${JSON.stringify(customer.logo_bg || '#000000')},
+    logoShape: ${JSON.stringify(customer.logo_shape || '50%')},
     apiBase: "https://chatbot-saas.vercel.app"
   };
 
@@ -108,7 +110,7 @@ module.exports = async (req, res) => {
   var html = '<button id="cbp-btn" onclick="cbpToggle()">💬</button>' +
     '<div id="cbp-win" class="hidden">' +
     '<div id="cbp-hdr">' +
-    '<div id="cbp-logo">' + (config.logo ? '<img src="' + config.logo + '" style="width:32px;height:32px;object-fit:contain;border-radius:50%;">' : config.name.slice(0,2).toUpperCase()) + '</div>' +
+    '<div id="cbp-logo">' + (config.logo ? '<img src="' + config.logo + '" style="width:32px;height:32px;object-fit:contain;border-radius:' + config.logoShape + ';background:' + config.logoBg + ';padding:2px;">' : config.name.slice(0,2).toUpperCase()) + '</div>' +
     '<div id="cbp-hdr-txt"><strong>' + config.name + '</strong><span>Hur kan vi hjälpa dig?</span></div>' +
     '<button id="cbp-close" onclick="cbpToggle()">x</button>' +
     '</div>' +
