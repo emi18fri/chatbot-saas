@@ -71,8 +71,6 @@ module.exports = async (req, res) => {
         cache[c.id] = { content: websiteInfo, time: Date.now() };
       } catch(e) {}
     }
-
-    const system =
       const system =
   "Du är en hjälpsam assistent för " + c.name + ". " +
   "Svara alltid kort och professionellt, utan markdown-formatering - inga stjärnor, inga bindestreck som listor, ingen fetstil. Skriv som vanlig text. " +
