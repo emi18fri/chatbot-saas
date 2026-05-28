@@ -59,16 +59,17 @@ module.exports = async (req, res) => {
     const { messages } = req.body;
 
     let websiteInfo = "";
-    if (c.website_url) {
-      if (cache[c.id] && (Date.now() - cache[c.id].time < 3 * 60 * 60 * 1000)) {
-        websiteInfo = cache[c.id].content;
-      } else {
-        try {
-          const html = await httpsGet(c.website_url, { "User-Agent": "Mozilla/5.0" });
-          websiteInfo = stripHtml(html).slice(0, 8000);
-          cache[c.id] = { content: websiteInfo, time: Date.now() };
-        } catch(e) {}
-      }
+    if (c.website_url && cache[c.id]) {
+      websiteInfo = cache[c.id].content;
+    } else if (c.website_url && !cache[c.id]) {
+      try {
+        const html = await Promise.race([
+          httpsGet(c.website_url, { "User-Agent": "Mozilla/5.0" }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 4000))
+        ]);
+        websiteInfo = stripHtml(html).slice(0, 5000);
+        cache[c.id] = { content: websiteInfo, time: Date.now() };
+      } catch(e) {}
     }
 
     const system =
