@@ -3,8 +3,7 @@
   "routes": [
     { "src": "/api/embed", "dest": "/api/embed.js" },
     { "src": "/api/chat", "dest": "/api/chat.js" },
-    { "src": "/admin", "dest": "/public/admin.html" },
-    { "src": "/", "dest": "/public/admin.html" }
+    { "src": "/admin", "dest": "/admin.html" },
+    { "src": "/", "dest": "/admin.html" }
   ]
 }
-
