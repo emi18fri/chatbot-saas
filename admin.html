@@ -209,6 +209,22 @@ function cbpVisaBedomning(){
   m.scrollTop=m.scrollHeight;
 }
 window.cbpBedomning=function(n){cbpAddMsg("Tack för din bedömning: "+"★".repeat(n)+"☆".repeat(5-n),"bot");};
+function cbpVisaForslag(svar){
+  var forslag=[];
+  if(svar.includes("badrum")||svar.includes("renovering")) forslag=["Vad kostar en badrumsrenovering?","Kan jag få ROT-avdrag?","Begär offert"];
+  else if(svar.includes("kök")) forslag=["Vad kostar en köksrenovering?","Hur lång tid tar det?","Begär offert"];
+  else if(svar.includes("tak")) forslag=["Vad kostar takläggning?","Kan jag få ROT-avdrag?","Begär offert"];
+  else if(svar.includes("rot")||svar.includes("avdrag")) forslag=["Vilka tjänster ger ROT-avdrag?","Hur ansöker man?","Begär offert"];
+  else if(svar.includes("bygglov")) forslag=["Vad kostar bygglov?","Hjälper ni med ansökan?","Begär offert"];
+  else if(svar.includes("mark")||svar.includes("dränering")) forslag=["Vad kostar dränering?","Berättigar det till ROT-avdrag?","Begär offert"];
+  else forslag=["Begär offert","Vilka tjänster erbjuder ni?","Hur kontaktar jag er?"];
+  var div=document.createElement("div");
+  div.style.cssText="display:flex;flex-direction:column;gap:4px;margin-top:4px;";
+  div.innerHTML=forslag.map(function(f){return '<button onclick="cbpSend(null,\''+f+'\')" style="background:#fffbea;border:1px solid #f0e0a0;border-radius:8px;padding:6px 10px;font-size:0.78rem;color:#333;cursor:pointer;text-align:left;">'+f+'</button>';}).join("");
+  var m=document.getElementById("cbp-msgs");
+  m.insertBefore(div,document.getElementById("cbp-typing"));
+  m.scrollTop=m.scrollHeight;
+}
 window.cbpSend=async function(e,text){
   var inp=document.getElementById("cbp-inp");
   var msg=text||inp.value.trim();if(!msg||loading)return;
@@ -229,6 +245,7 @@ window.cbpSend=async function(e,text){
     document.getElementById("cbp-typing").style.display="none";
     var reply=data.content&&data.content[0]?data.content[0].text:"Kunde inte svara.";
     cbpAddMsg(reply,"bot");msgs.push({role:"assistant",content:reply});
+cbpVisaForslag(reply.toLowerCase());
   }catch(e){
     clearTimeout(timeout);
     document.getElementById("cbp-typing").style.display="none";
