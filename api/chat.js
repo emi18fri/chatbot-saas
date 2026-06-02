@@ -21,6 +21,29 @@ function httpsGet(url, headers) {
   });
 }
 
+function httpsPost(hostname, path, body, headers) {
+  return new Promise((resolve, reject) => {
+    const bodyStr = JSON.stringify(body);
+    const req = https.request({
+      hostname,
+      path,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(bodyStr),
+        ...headers
+      }
+    }, (res) => {
+      let data = "";
+      res.on("data", chunk => data += chunk);
+      res.on("end", () => resolve(data));
+    });
+    req.on("error", reject);
+    req.write(bodyStr);
+    req.end();
+  });
+}
+
 function stripHtml(html) {
   return html
     .replace(/<script[\s\S]*?<\/script>/gi, "")
@@ -29,6 +52,35 @@ function stripHtml(html) {
     .replace(/&nbsp;/g, " ")
     .replace(/\s{2,}/g, " ")
     .trim();
+}
+
+function extractEmail(text) {
+  const match = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  return match ? match[0] : null;
+}
+
+async function skickaOffertMail(till, fran, offertText, foretagsnamn) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return false;
+
+  try {
+    await httpsPost("api.resend.com", "/emails", {
+      from: "Nordchat <noreply@nordchat.se>",
+      to: [till],
+      subject: "Ny offertförfrågan via chatboten",
+      html: `
+        <h2>Ny offertförfrågan från ${foretagsnamn}</h2>
+        <p>${offertText.replace(/\n/g, "<br>")}</p>
+        <hr>
+        <p style="color:#888;font-size:12px;">Skickat via Nordchat chatbot</p>
+      `
+    }, {
+      "Authorization": "Bearer " + resendKey
+    });
+    return true;
+  } catch(e) {
+    return false;
+  }
 }
 
 const cache = {};
@@ -58,6 +110,20 @@ module.exports = async (req, res) => {
 
     const { messages } = req.body;
 
+    // Kolla om det är en offertförfrågan och skicka mail
+    const sistaMsg = messages[messages.length - 1];
+    if (sistaMsg && sistaMsg.content && sistaMsg.content.includes("Offertförfrågan från")) {
+      const mottagarMail = c.contact_email || extractEmail(c.extra_info || "");
+      if (mottagarMail) {
+        await skickaOffertMail(
+          mottagarMail,
+          sistaMsg.content,
+          sistaMsg.content,
+          c.name
+        );
+      }
+    }
+
     let websiteInfo = "";
     if (c.website_url && cache[c.id]) {
       websiteInfo = cache[c.id].content;
@@ -71,20 +137,21 @@ module.exports = async (req, res) => {
         cache[c.id] = { content: websiteInfo, time: Date.now() };
       } catch(e) {}
     }
-      const system =
-  "Du är en hjälpsam assistent för " + c.name + ". " +
-  "Svara alltid kort och professionellt, utan markdown-formatering - inga stjärnor, inga bindestreck som listor, ingen fetstil. Skriv som vanlig text. " +
-  "Svara på samma språk som användaren skriver på. " +
-  "Hänvisa aldrig till hemsidan. Ge kontaktuppgifterna i slutet av svaret när det är relevant, till exempel när kunden frågar om en tjänst, pris eller vill gå vidare med ett projekt. " +
-  "Om du inte förstår frågan, svara med: Förlåt, jag förstod inte riktigt. Kan du förklara lite tydligare? " +
-  "Du ska svara på frågor om ROT-avdrag. ROT-avdraget ger 30% avdrag på arbetskostnaden upp till 50 000 kr per person och år. Renoveringar, markarbeten och vissa byggtjänster kan berättiga till ROT-avdrag. " +
-  "Du ska svara på frågor om bygglov. Bygglov krävs ofta för nybyggnation, tillbyggnader och vissa renoveringar. Priser för bygglov: Nybygge ca 20 000-50 000 kr, tillbyggnad ca 5 000-20 000 kr, Attefallshus ca 2 000-7 000 kr. " +
-  (c.extra_info ? "\n\nExtra information om företaget:\n" + c.extra_info : "") +
-  (websiteInfo ? "\n\nInfo från hemsidan:\n" + websiteInfo : "");
+
+    const system =
+      "Du är en hjälpsam assistent för " + c.name + ". " +
+      "Svara alltid kort och professionellt utan markdown-formatering - inga stjärnor, inga bindestreck som listor, ingen fetstil. Skriv som vanlig text. " +
+      "Svara på samma språk som användaren skriver på. " +
+      "Hänvisa aldrig till hemsidan. Ge kontaktuppgifterna i slutet av svaret när det är relevant. " +
+      "Om du inte förstår frågan, svara med: Förlåt, jag förstod inte riktigt. Kan du förklara lite tydligare? " +
+      "Du ska svara på frågor om ROT-avdrag. ROT-avdraget ger 30% avdrag på arbetskostnaden upp till 50 000 kr per person och år. " +
+      "Du ska svara på frågor om bygglov. Bygglov krävs ofta för nybyggnation, tillbyggnader och vissa renoveringar. " +
+      (c.extra_info ? "\n\nExtra information om företaget:\n" + c.extra_info : "") +
+      (websiteInfo ? "\n\nInfo från hemsidan:\n" + websiteInfo : "");
 
     const body = JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 500,
+      max_tokens: 300,
       system,
       messages
     });
