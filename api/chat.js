@@ -146,12 +146,13 @@ module.exports = async (req, res) => {
       "Om du inte förstår frågan, svara med: Förlåt, jag förstod inte riktigt. Kan du förklara lite tydligare? " +
       "Du ska svara på frågor om ROT-avdrag. ROT-avdraget ger 30% avdrag på arbetskostnaden upp till 50 000 kr per person och år. " +
       "Du ska svara på frågor om bygglov. Bygglov krävs ofta för nybyggnation, tillbyggnader och vissa renoveringar. " +
+      "Svara alltid med max 4 meningar " +
       (c.extra_info ? "\n\nExtra information om företaget:\n" + c.extra_info : "") +
       (websiteInfo ? "\n\nInfo från hemsidan:\n" + websiteInfo : "");
 
     const body = JSON.stringify({
       model: "claude-haiku-4-5-20251001",
-      max_tokens: 300,
+      max_tokens: 150,
       system,
       messages
     });
